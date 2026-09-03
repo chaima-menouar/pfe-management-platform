@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter Room</title>
+</head>
+<body>
+
+    <h1>Ajouter une salle</h1>
+
+    <p th:if="${error}" th:text="${error}" style="color:#b91c1c"></p>
+
+    <form th:action="@{/rooms/save}" th:object="${room}" method="post">
+        <div>
+            <label>Nom de la salle :</label>
+            <input type="text" th:field="*{nomSalle}" />
+            <span th:if="${#fields.hasErrors('nomSalle')}" th:errors="*{nomSalle}" style="color:#b91c1c"></span>
+        </div>
+        <br>
+
+        <div>
+            <label>Capacité :</label>
+            <input type="number" min="1" th:field="*{capacite}" />
+            <span th:if="${#fields.hasErrors('capacite')}" th:errors="*{capacite}" style="color:#b91c1c"></span>
+        </div>
+        <br>
+
+        <label><input type="checkbox" th:field="*{active}" /> Salle active</label>
+        <br><br>
+
+        <button type="submit">Enregistrer</button>
+    </form>
+
+    <br>
+    <a th:href="@{/rooms}">Retour à la liste</a>
+
+</body>
+</html>

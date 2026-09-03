@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier enseignant</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{
+            font-family:Arial,sans-serif;
+            color:#0f172a;
+            background:
+                radial-gradient(circle at top left,rgba(59,130,246,.08),transparent 26%),
+                linear-gradient(180deg,#eef4ff 0%,#f8fbff 24%,#f8fafc 100%);
+            min-height:100vh;
+        }
+
+        .main-content{
+            margin-left:280px;
+            width:calc(100% - 280px);
+            min-height:100vh;
+            padding:28px 26px 40px;
+        }
+
+        .hero{
+            position:relative;overflow:hidden;border-radius:24px;
+            padding:30px 34px;color:white;margin-bottom:22px;
+            background:
+                linear-gradient(135deg,rgba(29,78,216,.96),rgba(30,64,175,.92) 48%,rgba(15,23,42,.96)),
+                url('/images/ensah.png') no-repeat right 28px center / 170px auto;
+            box-shadow:0 20px 44px rgba(15,23,42,.18);
+        }
+        .hero h1{margin:0 0 8px;font-size:clamp(1.6rem,3vw,2.2rem);}
+        .hero p{margin:0;color:rgba(255,255,255,.88);line-height:1.7;max-width:700px;font-size:15px;}
+
+        .form-card{
+            background:rgba(255,255,255,.92);
+            border:1px solid rgba(255,255,255,.80);
+            border-radius:22px;
+            padding:24px;
+            box-shadow:0 16px 36px rgba(15,23,42,.08);
+        }
+
+        .info-box{
+            background:#eff6ff;
+            color:#1e3a8a;
+            border:1px solid #bfdbfe;
+            padding:14px;
+            border-radius:12px;
+            margin-bottom:18px;
+            line-height:1.7;
+        }
+
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+        }
+
+        .field{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+
+        label{
+            font-weight:700;
+            color:#1e293b;
+        }
+
+        input, select{
+            padding:12px 14px;
+            border:1px solid #cbd5e1;
+            border-radius:12px;
+            background:#f8fafc;
+            font-size:14px;
+        }
+
+        .field-error{
+            color:#dc2626;
+            font-size:13px;
+        }
+
+        .alert-error{
+            background:#fee2e2;
+            color:#991b1b;
+            border:1px solid #fecaca;
+            padding:12px 14px;
+            border-radius:12px;
+            margin-bottom:14px;
+            font-weight:700;
+        }
+
+        .actions{
+            margin-top:22px;
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+
+        .btn{
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            padding:12px 18px;
+            border-radius:12px;
+            text-decoration:none;
+            color:white;
+            border:none;
+            cursor:pointer;
+            font-weight:700;
+            font-size:14px;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);
+            box-shadow:0 10px 22px rgba(37,99,235,.22);
+        }
+
+        .btn-secondary{
+            background:linear-gradient(135deg,#64748b,#475569);
+            box-shadow:0 10px 22px rgba(71,85,105,.20);
+        }
+
+        @media(max-width:992px){
+            .main-content{margin-left:0;width:100%;padding:18px 14px 28px;}
+        }
+        @media(max-width:700px){
+            .grid{grid-template-columns:1fr;}
+            .actions .btn{width:100%;}
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/navbar :: navbar('teachers')"></div>
+
+<div class="main-content">
+
+    <div class="hero">
+        <h1>Modifier un enseignant</h1>
+        <p>Mettez à jour les informations de l'enseignant tout en gardant le département Informatique.</p>
+    </div>
+
+    <div class="form-card">
+        <div class="info-box">
+            <strong>Département fixe :</strong> Informatique<br>
+            <strong>Remarque :</strong> la filière concerne uniquement les étudiants, pas les enseignants.
+        </div>
+
+        <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+        <form th:action="@{/teachers/save}" th:object="${teacher}" method="post">
+            <input type="hidden" th:field="*{id}" />
+            <input type="hidden" th:field="*{departement}" value="Informatique"/>
+
+            <div class="grid">
+                <div class="field">
+                    <label>PPR</label>
+                    <input type="text"
+                           th:field="*{ppr}"
+                           required
+                           pattern="^[0-9]+$" />
+                    <div th:if="${#fields.hasErrors('ppr')}" th:errors="*{ppr}" class="field-error"></div>
+                </div>
+
+                <div class="field">
+                    <label>Email</label>
+                    <input type="email"
+                           th:field="*{email}"
+                           required />
+                    <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="field-error"></div>
+                </div>
+
+                <div class="field">
+                    <label>Mot de passe du compte encadrant (optionnel)</label>
+                    <input type="password" th:field="*{accountPassword}" minlength="12"
+                           autocomplete="new-password"
+                           placeholder="12 caractères minimum" />
+                    <div class="field-error">S'il est renseigné, l'identifiant sera l'adresse email.</div>
+                </div>
+
+                <div class="field">
+                    <label>Nom</label>
+                    <input type="text"
+                           th:field="*{nom}"
+                           required
+                           pattern="^[A-Za-zÀ-ÿ\\- ]+$" />
+                    <div th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}" class="field-error"></div>
+                </div>
+
+                <div class="field">
+                    <label>Prénom</label>
+                    <input type="text"
+                           th:field="*{prenom}"
+                           required
+                           pattern="^[A-Za-zÀ-ÿ\\- ]+$" />
+                    <div th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}" class="field-error"></div>
+                </div>
+
+                <div class="field">
+                    <label>Spécialité</label>
+                    <select th:field="*{specialite}" required>
+                        <option value="">-- Choisir une spécialité --</option>
+                        <option th:each="specialite : ${specialites}"
+                                th:value="${specialite}"
+                                th:text="${specialite}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Langue</label>
+                    <select th:field="*{langue}" required>
+                        <option value="">-- Choisir une langue --</option>
+                        <option value="FR">Français</option>
+                        <option value="EN">Anglais</option>
+                        <option value="AR">Arabe</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Prof de langue</label>
+                    <select th:field="*{estProfLangue}">
+                        <option th:value="false">Non</option>
+                        <option th:value="true">Oui</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Max encadrement</label>
+                    <input type="number" th:field="*{maxEncadrement}" min="0" required />
+                </div>
+
+                <div class="field">
+                    <label>Max jury</label>
+                    <input type="number" th:field="*{maxJury}" min="0" required />
+                </div>
+
+                <div class="field">
+                    <label>Actif</label>
+                    <select th:field="*{actif}">
+                        <option th:value="true">Oui</option>
+                        <option th:value="false">Non</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Disponible encadrement</label>
+                    <select th:field="*{disponibleEncadrement}">
+                        <option th:value="true">Oui</option>
+                        <option th:value="false">Non</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Disponible jury</label>
+                    <select th:field="*{disponibleJury}">
+                        <option th:value="true">Oui</option>
+                        <option th:value="false">Non</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn">Ajouter</button>
+                <a th:href="@{/teachers}" class="btn btn-secondary">Retour à la liste</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

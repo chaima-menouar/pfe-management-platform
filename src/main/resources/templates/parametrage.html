@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Paramétrage</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0;}
+        body{
+            font-family:Arial,sans-serif;color:#0f172a;
+            background:
+                radial-gradient(circle at top left,rgba(59,130,246,.09),transparent 26%),
+                linear-gradient(180deg,#eef4ff 0%,#f8fbff 22%,#f8fafc 100%);
+            min-height:100vh;
+        }
+
+        .main-content{
+            margin-left:260px;
+            width:calc(100% - 260px);
+            min-height:100vh;
+            padding:28px 26px 40px;
+        }
+
+        .hero{
+            position:relative;overflow:hidden;border-radius:24px;
+            padding:30px 34px;color:white;margin-bottom:22px;
+            background:
+                linear-gradient(135deg,rgba(29,78,216,.96),rgba(30,64,175,.92) 48%,rgba(15,23,42,.96)),
+                url('/images/ensah.png') no-repeat right 28px center / 180px auto;
+            box-shadow:0 20px 44px rgba(15,23,42,.18);
+        }
+        .hero h1{margin:0 0 10px;font-size:clamp(1.6rem,3vw,2.2rem);}
+        .hero p{margin:0;max-width:680px;color:rgba(255,255,255,.92);line-height:1.7;font-size:15px;}
+
+        .form-card{
+            background:rgba(255,255,255,.92);
+            border:1px solid rgba(255,255,255,.72);
+            border-radius:24px;padding:28px;
+            box-shadow:0 18px 38px rgba(15,23,42,.08);
+        }
+
+        .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+        .field{display:flex;flex-direction:column;gap:8px;}
+        .field.full{grid-column:1 / -1;}
+        label{font-weight:700;color:#1e293b;}
+
+        input[type="date"],input[type="number"],input[type="text"]{
+            width:100%;padding:13px 15px;border-radius:13px;
+            border:1px solid #cbd5e1;background:#f8fafc;font-size:15px;
+            outline:none;transition:border-color .25s,box-shadow .25s,transform .2s;
+        }
+        input[type="date"]:focus,input[type="number"]:focus,input[type="text"]:focus{
+            border-color:#3b82f6;box-shadow:0 0 0 4px rgba(59,130,246,.12);transform:translateY(-1px);
+        }
+
+        .option-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+        .check-card{
+            display:flex;align-items:center;gap:12px;
+            padding:16px 18px;border-radius:16px;
+            background:linear-gradient(135deg,#f8fbff,#eef6ff);
+            border:1px solid #dbeafe;cursor:pointer;
+        }
+        .check-card input[type="checkbox"]{width:18px;height:18px;accent-color:#2563eb;}
+
+        .info-box{
+            background:#eff6ff;
+            color:#1e3a8a;
+            border:1px solid #bfdbfe;
+            padding:14px;
+            border-radius:12px;
+            margin-bottom:18px;
+            line-height:1.7;
+        }
+
+        .actions{margin-top:24px;display:flex;gap:12px;flex-wrap:wrap;}
+
+        .btn{
+            border:none;cursor:pointer;text-decoration:none;
+            display:inline-flex;align-items:center;justify-content:center;
+            padding:13px 22px;border-radius:13px;font-weight:800;font-size:14px;
+            transition:transform .25s,box-shadow .25s,filter .25s;
+        }
+        .btn-primary{
+            color:white;background:linear-gradient(135deg,#3b82f6,#2563eb);
+            box-shadow:0 12px 26px rgba(37,99,235,.24);
+        }
+        .btn-primary:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 18px 32px rgba(37,99,235,.30);filter:brightness(1.03);}
+        .btn-secondary{
+            color:#1e3a8a;background:#e0ecff;
+            box-shadow:0 10px 22px rgba(59,130,246,.12);
+        }
+        .btn-secondary:hover{transform:translateY(-2px);}
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        @media(max-width:992px){.main-content{margin-left:0;width:100%;padding:18px 14px 28px;}}
+        @media(max-width:860px){
+            .hero{background:linear-gradient(135deg,rgba(29,78,216,.96),rgba(30,64,175,.92) 48%,rgba(15,23,42,.96));padding:24px 22px;}
+            .grid,.option-grid{grid-template-columns:1fr;}
+        }
+        @media(max-width:600px){.actions .btn{width:100%;}}
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/navbar :: navbar('parametrage')"></div>
+
+<div class="main-content">
+
+    <div class="hero">
+        <h1>Paramétrage du planning</h1>
+        <p>Configuration globale du système Informatique : dates autorisées, contraintes de planification et créneaux fixes.</p>
+    </div>
+
+    <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <div class="info-box">
+        <strong>Département actif :</strong> Informatique<br>
+        <strong>Filières autorisées :</strong>
+        <span th:each="f, stat : ${filieres}">
+            <span th:text="${f}"></span><span th:if="${!stat.last}">, </span>
+        </span><br>
+        <strong>Créneaux générés (calculés depuis les plages + durée) :</strong>
+        <span th:if="${#lists.isEmpty(creneauxAutorises)}" style="color:#b91c1c;font-weight:700;">aucun — vérifie les plages horaires</span>
+        <span th:each="c, stat : ${creneauxAutorises}">
+            <span th:text="${c}"></span><span th:if="${!stat.last}">, </span>
+        </span>
+    </div>
+
+    <div class="form-card">
+        <form th:action="@{/parametrage}" method="post">
+            <div class="grid">
+
+                <div class="field">
+                    <label for="dateDebut">Date début</label>
+                    <input id="dateDebut" type="date" name="dateDebut" th:value="${parametrage.dateDebut}" required>
+                </div>
+
+                <div class="field">
+                    <label for="dateFin">Date fin</label>
+                    <input id="dateFin" type="date" name="dateFin" th:value="${parametrage.dateFin}" required>
+                </div>
+
+                <div class="field">
+                    <label for="dureeSoutenanceMinutes">Durée soutenance (minutes)</label>
+                    <input id="dureeSoutenanceMinutes" type="number" name="dureeSoutenanceMinutes" th:value="${parametrage.dureeSoutenanceMinutes}" required min="15" step="5">
+                </div>
+
+                <div class="field">
+                    <label for="dureeReposMinutes">Durée repos entre soutenances (minutes)</label>
+                    <input id="dureeReposMinutes" type="number" name="dureeReposMinutes" th:value="${parametrage.dureeReposMinutes}" required min="0">
+                </div>
+
+                <div class="field">
+                    <label for="heureDebutMatin">Début matin</label>
+                    <input id="heureDebutMatin" type="time" name="heureDebutMatin" th:value="${parametrage.heureDebutMatin}" required>
+                </div>
+
+                <div class="field">
+                    <label for="heureFinMatin">Fin matin</label>
+                    <input id="heureFinMatin" type="time" name="heureFinMatin" th:value="${parametrage.heureFinMatin}" required>
+                </div>
+
+                <div class="field">
+                    <label for="heureDebutApresMidi">Début après-midi</label>
+                    <input id="heureDebutApresMidi" type="time" name="heureDebutApresMidi" th:value="${parametrage.heureDebutApresMidi}" required>
+                </div>
+
+                <div class="field">
+                    <label for="heureFinApresMidi">Fin après-midi</label>
+                    <input id="heureFinApresMidi" type="time" name="heureFinApresMidi" th:value="${parametrage.heureFinApresMidi}" required>
+                </div>
+
+                <div class="field">
+                    <label for="maxSoutenancesTeacherPerDay">Max soutenances / enseignant / jour</label>
+                    <input id="maxSoutenancesTeacherPerDay" type="number" name="maxSoutenancesTeacherPerDay" th:value="${parametrage.maxSoutenancesTeacherPerDay}" required min="1">
+                </div>
+
+                <div class="field">
+                    <label for="maxSoutenancesRoomPerDay">Max soutenances / salle / jour</label>
+                    <input id="maxSoutenancesRoomPerDay" type="number" name="maxSoutenancesRoomPerDay" th:value="${parametrage.maxSoutenancesRoomPerDay}" required min="1">
+                </div>
+
+                <div class="field">
+                    <label for="minJoursPlanning">Minimum jours planning</label>
+                    <input id="minJoursPlanning" type="number" name="minJoursPlanning" th:value="${parametrage.minJoursPlanning}" required min="1">
+                </div>
+
+                <div class="field">
+                    <label for="maxJoursPlanning">Maximum jours planning</label>
+                    <input id="maxJoursPlanning" type="number" name="maxJoursPlanning" th:value="${parametrage.maxJoursPlanning}" required min="1">
+                </div>
+
+                <div class="field full">
+                    <label>Options supplémentaires</label>
+                    <div class="option-grid">
+                        <label class="check-card" for="exclureWeekend">
+                            <input id="exclureWeekend" type="checkbox" name="exclureWeekend" th:checked="${parametrage.exclureWeekend}">
+                            <span>Exclure le week-end</span>
+                        </label>
+                        <label class="check-card" for="exigerProfLangue">
+                            <input id="exigerProfLangue" type="checkbox" name="exigerProfLangue" th:checked="${parametrage.exigerProfLangue}">
+                            <span>Exiger prof compatible avec la langue</span>
+                        </label>
+                        <label class="check-card" for="autoriserProfLangueEncadrant">
+                            <input id="autoriserProfLangueEncadrant" type="checkbox" name="autoriserProfLangueEncadrant" th:checked="${parametrage.autoriserProfLangueEncadrant}">
+                            <span>Autoriser prof de langue comme encadrant</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn btn-primary">Enregistrer</button>
+                <a th:href="@{/defenses}" class="btn btn-secondary">Retour au planning</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+</body>
+</html>

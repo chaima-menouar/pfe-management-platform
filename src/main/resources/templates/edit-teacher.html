@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier Teacher</title>
+</head>
+<body>
+
+<h1>Modifier un enseignant</h1>
+
+<p th:if="${error}" th:text="${error}" style="color:#b91c1c"></p>
+
+<form th:action="@{/teachers/save}" th:object="${teacher}" method="post">
+    <input type="hidden" th:field="*{id}" />
+
+    <div>
+        <label>PPR :</label>
+        <input type="text"
+               th:field="*{ppr}"
+               required
+               pattern="^[0-9]+$"
+               title="Le PPR doit contenir uniquement des chiffres." />
+        <div th:if="${#fields.hasErrors('ppr')}" th:errors="*{ppr}" style="color:red;"></div>
+    </div>
+    <br>
+
+    <div>
+        <label>Nom :</label>
+        <input type="text"
+               th:field="*{nom}"
+               required
+               pattern="^[A-Za-zÀ-ÿ\\- ]+$"
+               title="Le nom ne doit contenir que des lettres, espaces ou tirets." />
+        <div th:if="${#fields.hasErrors('nom')}" th:errors="*{nom}" style="color:red;"></div>
+    </div>
+    <br>
+
+    <div>
+        <label>Prénom :</label>
+        <input type="text"
+               th:field="*{prenom}"
+               required
+               pattern="^[A-Za-zÀ-ÿ\\- ]+$"
+               title="Le prénom ne doit contenir que des lettres, espaces ou tirets." />
+        <div th:if="${#fields.hasErrors('prenom')}" th:errors="*{prenom}" style="color:red;"></div>
+    </div>
+    <br>
+
+    <div>
+        <label>Email :</label>
+        <input type="email"
+               th:field="*{email}"
+               required
+               title="Saisissez une adresse email valide." />
+        <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red;"></div>
+    </div>
+    <br>
+
+    <div>
+        <label>Département :</label>
+        <strong>Informatique</strong>
+        <input type="hidden" th:field="*{departement}" value="Informatique" />
+    </div>
+    <br>
+
+    <div>
+        <label>Spécialité :</label>
+        <select th:field="*{specialite}" required>
+            <option value="">-- Choisir une spécialité --</option>
+            <option th:each="specialite : ${specialites}"
+                    th:value="${specialite}"
+                    th:text="${specialite}">
+            </option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Langue :</label>
+        <select th:field="*{langue}" required>
+            <option value="">-- Choisir une langue --</option>
+            <option value="FR">Français</option>
+            <option value="EN">Anglais</option>
+            <option value="AR">Arabe</option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Prof de langue :</label>
+        <select th:field="*{estProfLangue}">
+            <option th:value="false">Non</option>
+            <option th:value="true">Oui</option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Nouveau mot de passe du compte encadrant (optionnel) :</label>
+        <input type="password" th:field="*{accountPassword}" minlength="12"
+               autocomplete="new-password" placeholder="Laisser vide pour le conserver" />
+        <small>L'identifiant du compte est l'adresse email de l'enseignant.</small>
+    </div>
+    <br>
+
+    <div>
+        <label>Max encadrement :</label>
+        <input type="number" th:field="*{maxEncadrement}" min="1" required />
+    </div>
+    <br>
+
+    <div>
+        <label>Max jury :</label>
+        <input type="number" th:field="*{maxJury}" min="1" required />
+    </div>
+    <br>
+
+    <div>
+        <label>Actif :</label>
+        <select th:field="*{actif}">
+            <option th:value="true">Oui</option>
+            <option th:value="false">Non</option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Disponible encadrement :</label>
+        <select th:field="*{disponibleEncadrement}">
+            <option th:value="true">Oui</option>
+            <option th:value="false">Non</option>
+        </select>
+    </div>
+    <br>
+
+    <div>
+        <label>Disponible jury :</label>
+        <select th:field="*{disponibleJury}">
+            <option th:value="true">Oui</option>
+            <option th:value="false">Non</option>
+        </select>
+    </div>
+    <br>
+
+    <button type="submit">Mettre à jour</button>
+</form>
+
+<br>
+<a th:href="@{/teachers}">Retour à la liste</a>
+
+</body>
+</html>

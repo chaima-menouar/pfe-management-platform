@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard Encadrant · Gestion PFE</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{--sb-w:260px;}
+body{
+    font-family:'Segoe UI',Arial,sans-serif;color:#16304f;
+    background-color:#b8cfe8;
+    background-image:linear-gradient(rgba(185,210,240,0.50),rgba(185,210,240,0.50)),url('/images/ensah.png');
+    background-size:cover;background-position:center;background-attachment:fixed;background-repeat:no-repeat;
+    min-height:100vh;display:flex;
+}
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sb-w);min-height:100vh;position:fixed;top:0;left:0;z-index:1000;display:flex;flex-direction:column;background:linear-gradient(175deg,#1158b8 0%,#0a3272 55%,#072050 100%);border-right:1px solid rgba(255,255,255,0.10);}
+.sb-brand{display:flex;align-items:center;gap:13px;padding:16px 16px 14px;border-bottom:1px solid rgba(255,255,255,0.10);text-decoration:none;}
+.sb-logo{width:54px;height:54px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 2px 10px rgba(0,0,0,0.25));}
+.sb-title{font-size:1.05rem;font-weight:800;color:white;letter-spacing:-0.2px;line-height:1.25;}
+.sb-sub{font-size:0.72rem;color:rgba(255,255,255,0.55);margin-top:2px;font-weight:500;}
+.sb-nav{padding:12px 10px;display:flex;flex-direction:column;gap:2px;flex:1;}
+.sb-link{display:flex;align-items:center;gap:11px;text-decoration:none;color:rgba(255,255,255,0.80);padding:10px 13px;border-radius:10px;font-weight:600;font-size:13.5px;transition:background .18s,transform .18s;border:1px solid transparent;}
+.sb-link:hover{background:rgba(255,255,255,0.09);transform:translateX(3px);}
+.sb-link.active{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.13);color:white;}
+.sb-link svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;opacity:.88;}
+.sb-link.active svg{opacity:1;}
+.sb-bottom{padding:10px 10px 0;}
+.sb-logout{display:flex;align-items:center;gap:11px;width:100%;padding:10px 13px;border-radius:10px;background:rgba(220,38,38,0.18);border:1px solid rgba(220,38,38,0.30);color:#fca5a5;font-weight:700;font-size:13.5px;cursor:pointer;text-decoration:none;transition:background .18s,transform .18s;}
+.sb-logout:hover{background:rgba(220,38,38,0.30);transform:translateX(3px);}
+.sb-logout svg{width:17px;height:17px;flex-shrink:0;fill:none;stroke:#fca5a5;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.sb-footer{padding:10px 18px 14px;font-size:11px;color:rgba(255,255,255,0.30);text-align:center;margin-top:8px;}
+/* ── MAIN ── */
+.main{margin-left:var(--sb-w);flex:1;padding:28px 26px 40px;min-height:100vh;}
+/* ── HERO ── */
+.hero{position:relative;border-radius:18px;overflow:hidden;padding:30px 34px;display:flex;align-items:center;min-height:160px;background:transparent;margin-bottom:22px;}
+.hero-content{position:relative;z-index:2;max-width:580px;}
+.hero-badge{display:inline-block;margin-bottom:10px;padding:5px 14px;border-radius:999px;background:rgba(255,255,255,0.30);color:#0a2860;border:1px solid rgba(255,255,255,0.55);font-weight:700;font-size:12px;text-shadow:0 1px 3px rgba(255,255,255,0.8);}
+.hero-title{font-size:2rem;font-weight:800;color:#0a2f6e;letter-spacing:-0.5px;line-height:1.1;margin-bottom:8px;text-shadow:0 0 12px rgba(255,255,255,0.95),0 2px 8px rgba(255,255,255,0.90);}
+.hero-sub{font-size:0.9rem;color:#0d2d55;text-shadow:0 0 10px rgba(255,255,255,0.98),0 1px 6px rgba(255,255,255,0.90);}
+/* ── STATS ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat-box{background:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.95);border-radius:16px;padding:18px 20px;box-shadow:0 4px 18px rgba(13,78,166,0.09);transition:transform .2s,box-shadow .2s;display:flex;flex-direction:column;gap:7px;}
+.stat-box:hover{transform:translateY(-4px);box-shadow:0 12px 28px rgba(13,78,166,0.16);}
+.stat-icon{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#daeaff,#b8d4ff);display:flex;align-items:center;justify-content:center;}
+.stat-icon svg{width:18px;height:18px;fill:none;stroke:#1a52b0;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.stat-num{font-size:2.2rem;font-weight:900;color:#16a34a;line-height:1;letter-spacing:-1px;}
+.stat-label{font-size:12px;font-weight:700;color:#4a6a96;}
+/* ── 2-COL ROW ── */
+.row2{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:18px;}
+/* ── CARDS ── */
+.card{background:rgba(255,255,255,0.88);border:1px solid rgba(255,255,255,0.95);border-radius:16px;padding:20px;box-shadow:0 3px 14px rgba(13,78,166,0.08);}
+.card-title{font-size:0.95rem;font-weight:800;color:#0a2f6e;display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.card-title svg{width:16px;height:16px;fill:none;stroke:#1a52b0;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+/* Info rows */
+.info-row{display:flex;gap:6px;margin-bottom:7px;font-size:13px;}
+.info-label{color:#52729e;min-width:90px;font-weight:600;}
+.info-val{color:#0a2f6e;font-weight:500;}
+/* Quick links */
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+.quick-link{display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(240,245,255,0.9);border-radius:10px;text-decoration:none;border:1px solid rgba(219,234,254,0.8);transition:all .15s;}
+.quick-link:hover{background:#dbeafe;border-color:#93c5fd;}
+.quick-link-icon{width:30px;height:30px;background:linear-gradient(135deg,#daeaff,#c0d8ff);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.quick-link-icon svg{width:14px;height:14px;fill:none;stroke:#1a52b0;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.quick-link-name{font-size:12px;font-weight:700;color:#0a2f6e;display:block;}
+.quick-link-sub{font-size:10px;color:#52729e;}
+/* News */
+.news-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.news-item{background:rgba(240,245,255,0.9);border-radius:10px;padding:14px;border:1px solid rgba(219,234,254,0.8);}
+.news-label{font-size:11px;font-weight:700;color:#1a52b0;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px;}
+.news-body{font-size:12px;color:#52729e;margin-bottom:10px;}
+.dl-row{display:flex;gap:8px;flex-wrap:wrap;}
+.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:8px;font-size:11px;font-weight:700;text-decoration:none;border:none;transition:background .15s;}
+.dl-btn svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.dl-btn.pdf{background:#fee2e2;color:#b91c1c;}
+.dl-btn.pdf:hover{background:#fecaca;}
+.dl-btn.excel{background:#dcfce7;color:#15803d;}
+.dl-btn.excel:hover{background:#bbf7d0;}
+.dl-btn.view{background:#dbeafe;color:#1d4ed8;}
+.dl-btn.view:hover{background:#bfdbfe;}
+/* Table */
+.table-card{margin-top:18px;}
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:#f0f5ff;}
+th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#1a52b0;letter-spacing:0.3px;text-transform:uppercase;border-bottom:2px solid #dbeafe;white-space:nowrap;}
+td{padding:11px 14px;border-bottom:1px solid #f0f4f8;color:#1e3a5f;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(219,234,254,0.35);}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+.badge-blue{background:#dbeafe;color:#1d4ed8;}
+.badge-green{background:#dcfce7;color:#15803d;}
+.badge-amber{background:#fef3c7;color:#92400e;}
+.badge-gray{background:#f1f5f9;color:#475569;}
+.empty-td{text-align:center;padding:28px;color:#64748b;font-size:13px;}
+@media(max-width:1100px){.stats-row{grid-template-columns:repeat(2,1fr);}.row2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+    <a th:href="@{/encadrant}" class="sb-brand">
+        <img th:src="@{/images/logo.png}" alt="ENSAH" class="sb-logo">
+        <div>
+            <div class="sb-title">Gestion PFE</div>
+            <div class="sb-sub">ENSAH &middot; Al Hoceima</div>
+        </div>
+    </a>
+    <nav class="sb-nav">
+        <a th:href="@{/encadrant}" class="sb-link active">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            Dashboard
+        </a>
+        <a th:href="@{/encadrant/etudiants}" class="sb-link">
+            <svg viewBox="0 0 24 24"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M6 11.5v4.5c0 0 2 2 6 2s6-2 6-2v-4.5"/></svg>
+            Mes étudiants
+        </a>
+        <a th:href="@{/encadrant/soutenances}" class="sb-link">
+            <svg viewBox="0 0 24 24"><path d="M12 21s8-4 8-9.5V5.5l-8-3-8 3V11.5c0 5.5 8 9.5 8 9.5z"/></svg>
+            Mes soutenances
+        </a>
+        <a th:href="@{/encadrant/planning}" class="sb-link">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Mon planning
+        </a>
+        <a th:href="@{/encadrant/repartition}" class="sb-link">
+            <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Ma répartition
+        </a>
+    </nav>
+    <div class="sb-bottom">
+        <form th:action="@{/logout}" method="post">
+        <button type="submit" class="sb-logout">
+            <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Déconnexion
+        </button>
+        </form>
+    </div>
+    <div class="sb-footer">&copy; 2026 ENSAH &middot; Gestion PFE</div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">ENSAH &middot; Espace Encadrant</div>
+            <h1 class="hero-title">Dashboard Encadrant</h1>
+            <p class="hero-sub" th:text="${'Bienvenue, ' + teacher.prenom + ' ' + teacher.nom + ' · ' + teacher.departement}">Bienvenue</p>
+        </div>
+    </section>
+
+    <!-- Stats -->
+    <div class="stats-row">
+        <div class="stat-box">
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M6 11.5v4.5c0 0 2 2 6 2s6-2 6-2v-4.5"/></svg></div>
+            <div class="stat-num" th:text="${studentsCount}">0</div>
+            <div class="stat-label">Mes étudiants</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M12 21s8-4 8-9.5V5.5l-8-3-8 3V11.5c0 5.5 8 9.5 8 9.5z"/></svg></div>
+            <div class="stat-num" th:text="${defensesCount}">0</div>
+            <div class="stat-label">Mes soutenances</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+            <div class="stat-num" th:text="${latestPlanning != null ? '1' : '0'}">0</div>
+            <div class="stat-label">Planning publié</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+            <div class="stat-num" th:text="${latestRepartition != null ? '1' : '0'}">0</div>
+            <div class="stat-label">Répartition publiée</div>
+        </div>
+    </div>
+
+    <!-- Info + Quick access -->
+    <div class="row2">
+        <!-- Info personnelles -->
+        <div class="card">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Informations personnelles
+            </div>
+            <div class="info-row"><span class="info-label">Nom complet</span><span class="info-val" th:text="${teacher.prenom + ' ' + teacher.nom}">—</span></div>
+            <div class="info-row"><span class="info-label">PPR</span><span class="info-val" th:text="${teacher.ppr}">—</span></div>
+            <div class="info-row"><span class="info-label">Email</span><span class="info-val" style="font-size:12px;" th:text="${teacher.email}">—</span></div>
+            <div class="info-row"><span class="info-label">Département</span><span class="info-val" th:text="${teacher.departement}">—</span></div>
+            <div class="info-row" th:if="${teacher.filiere}"><span class="info-label">Filière</span><span class="info-val" th:text="${teacher.filiere}">—</span></div>
+            <div class="info-row" th:if="${teacher.specialite}"><span class="info-label">Spécialité</span><span class="info-val" th:text="${teacher.specialite}">—</span></div>
+            <div class="info-row"><span class="info-label">Langue</span><span class="info-val" th:text="${teacher.langue}">—</span></div>
+        </div>
+
+        <!-- Quick access -->
+        <div class="card">
+            <div class="card-title">
+                <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                Accès rapide &amp; téléchargements
+            </div>
+            <div class="quick-grid">
+                <a th:href="@{/encadrant/etudiants}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M6 11.5v4.5c0 0 2 2 6 2s6-2 6-2v-4.5"/></svg></div>
+                    <div><span class="quick-link-name">Mes étudiants</span><span class="quick-link-sub">Voir la liste</span></div>
+                </a>
+                <a th:href="@{/encadrant/soutenances}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><path d="M12 21s8-4 8-9.5V5.5l-8-3-8 3V11.5c0 5.5 8 9.5 8 9.5z"/></svg></div>
+                    <div><span class="quick-link-name">Mes soutenances</span><span class="quick-link-sub">Calendrier complet</span></div>
+                </a>
+                <a th:href="@{/encadrant/download/planning/pdf}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div><span class="quick-link-name">Planning PDF</span><span class="quick-link-sub">Télécharger</span></div>
+                </a>
+                <a th:href="@{/encadrant/download/planning/excel}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+                    <div><span class="quick-link-name">Planning Excel</span><span class="quick-link-sub">Télécharger</span></div>
+                </a>
+                <a th:href="@{/encadrant/download/repartition/pdf}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></div>
+                    <div><span class="quick-link-name">Répartition PDF</span><span class="quick-link-sub">Télécharger</span></div>
+                </a>
+                <a th:href="@{/encadrant/download/repartition/excel}" class="quick-link">
+                    <div class="quick-link-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+                    <div><span class="quick-link-name">Répartition Excel</span><span class="quick-link-sub">Télécharger</span></div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nouveautés département -->
+    <div class="card" style="margin-bottom:18px;">
+        <div class="card-title">
+            <svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            Nouveautés du département
+        </div>
+        <div class="news-grid">
+            <div class="news-item">
+                <div class="news-label">Dernier planning publié</div>
+                <div class="news-body" th:if="${latestPlanning == null}">Aucun planning publié pour le moment.</div>
+                <div th:unless="${latestPlanning == null}">
+                    <div class="news-body">
+                        <span th:text="${'Publié le : ' + latestPlanning.generatedAt}"></span><br>
+                        <span th:text="${'Par : ' + latestPlanning.generatedBy}"></span>
+                    </div>
+                </div>
+                <div class="dl-row">
+                    <a th:href="@{/encadrant/departement/planning}" class="dl-btn view">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Voir
+                    </a>
+                    <a th:href="@{/encadrant/download/departement/planning/pdf}" class="dl-btn pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF
+                    </a>
+                    <a th:href="@{/encadrant/download/departement/planning/excel}" class="dl-btn excel">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Excel
+                    </a>
+                </div>
+            </div>
+            <div class="news-item">
+                <div class="news-label">Dernière répartition publiée</div>
+                <div class="news-body" th:if="${latestRepartition == null}">Aucune répartition publiée pour le moment.</div>
+                <div th:unless="${latestRepartition == null}">
+                    <div class="news-body">
+                        <span th:text="${'Publiée le : ' + latestRepartition.generatedAt}"></span><br>
+                        <span th:text="${'Par : ' + latestRepartition.generatedBy}"></span>
+                    </div>
+                </div>
+                <div class="dl-row">
+                    <a th:href="@{/encadrant/departement/repartition}" class="dl-btn view">
+                        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Voir
+                    </a>
+                    <a th:href="@{/encadrant/download/departement/repartition/pdf}" class="dl-btn pdf">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>PDF
+                    </a>
+                    <a th:href="@{/encadrant/download/departement/repartition/excel}" class="dl-btn excel">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Excel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Prochaines soutenances -->
+    <div class="card table-card">
+        <div class="card-title">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Prochaines soutenances
+        </div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Étudiant</th><th>Date</th><th>Heure début</th><th>Heure fin</th><th>Salle</th><th>Rôle</th><th>Statut</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(defenses)}">
+                        <td colspan="7" class="empty-td">Aucune soutenance trouvée.</td>
+                    </tr>
+                    <tr th:each="d : ${defenses}">
+                        <td style="font-weight:600;" th:text="${d.student != null ? d.student.prenom + ' ' + d.student.nom : '-'}">—</td>
+                        <td th:text="${d.dateSoutenance != null ? d.dateSoutenance : '-'}">—</td>
+                        <td th:text="${d.heureDebut != null ? d.heureDebut : '-'}">—</td>
+                        <td th:text="${d.heureFin != null ? d.heureFin : '-'}">—</td>
+                        <td><span class="badge badge-gray" th:text="${d.room != null ? d.room.nomSalle : '-'}">—</span></td>
+                        <td>
+                            <span class="badge"
+                                th:classappend="${d.encadrant != null and d.encadrant.id == teacher.id} ? ' badge-green' : ' badge-amber'"
+                                th:text="${d.encadrant != null and d.encadrant.id == teacher.id ? 'Encadrant'
+                                         : (d.jury1 != null and d.jury1.id == teacher.id ? 'Jury 1'
+                                         : (d.jury2 != null and d.jury2.id == teacher.id ? 'Jury 2' : '-'))}">—</span>
+                        </td>
+                        <td>
+                            <span class="badge"
+                                th:classappend="${d.statut == 'PLANIFIEE'} ? ' badge-blue' : (${d.statut == 'VALIDEE'} ? ' badge-green' : ' badge-amber')"
+                                th:text="${d.statut != null ? d.statut : '-'}">—</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>
+</body>
+</html>

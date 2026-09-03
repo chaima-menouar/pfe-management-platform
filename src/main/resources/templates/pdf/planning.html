@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<style>
+body { font-family: Arial; }
+
+.header {
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.title {
+    font-weight:bold;
+    font-size:18px;
+}
+
+table {
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+}
+
+th {
+    background:black;
+    color:white;
+}
+
+td, th {
+    border:1px solid #000;
+    padding:5px;
+}
+
+.gi { background:#dbeafe; }
+.id { background:#fde68a; }
+
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div class="title">Ecole Nationale des Sciences Appliquées - Al Hoceima</div>
+    <div>Planning des soutenances</div>
+</div>
+
+<table>
+<tr>
+    <th>ID</th>
+    <th>Encadrant</th>
+    <th>Jury1</th>
+    <th>Jury2</th>
+    <th>Date</th>
+    <th>Heure</th>
+    <th>Salle</th>
+    <th>Étudiant</th>
+</tr>
+
+<tr th:each="d : ${defenses}">
+    <td th:text="${d.id}"></td>
+    <td th:text="${d.encadrant.nom}"></td>
+    <td th:text="${d.jury1.nom}"></td>
+    <td th:text="${d.jury2.nom}"></td>
+    <td th:text="${d.dateSoutenance}"></td>
+    <td th:text="${d.heureDebut}"></td>
+    <td th:text="${d.room.nomSalle}"></td>
+    <td th:text="${d.student.nom}"></td>
+</tr>
+
+</table>
+
+<!-- Cachet -->
+<img src="classpath:static/images/cachet.png" width="120"/>
+
+</body>
+</html>

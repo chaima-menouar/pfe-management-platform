@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Planning intelligent des soutenances</title>
+    <style>
+        *{box-sizing:border-box;}
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8fafc;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            margin-left: 280px;
+            width: calc(100% - 280px);
+            padding: 25px 20px 25px 20px;
+        }
+
+        h1, h2, h3 { color: #1e293b; }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 10px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            color: white;
+            background: #2563eb;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary { background: #475569; }
+        .btn-success { background: #16a34a; }
+        .btn-warning { background: #d97706; }
+.btn-danger { background: #dc2626; }
+        .btn-info { background: #0891b2; }
+
+        .btn-sm {
+            padding: 7px 10px;
+            font-size: 13px;
+            border-radius: 6px;
+        }
+
+        .filter-box, .report-box, .bloc {
+            background: white;
+            padding: 18px;
+            border-radius: 14px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            min-width: 220px;
+        }
+
+        .actions {
+            margin-top: 14px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .row-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .mini-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .mini-card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .mini-card .value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #0f172a;
+            word-break: break-word;
+        }
+
+        .date-title {
+            background: #dbeafe;
+            padding: 10px 14px;
+            border-radius: 10px;
+            margin-top: 16px;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .table-wrap {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            min-width: 1200px;
+            border-collapse: collapse;
+            background: white;
+            margin-top: 8px;
+        }
+
+        th, td {
+            border-bottom: 1px solid #e5e7eb;
+            padding: 10px;
+            text-align: left;
+            vertical-align: middle;
+        }
+
+        th { background: #eff6ff; }
+
+        ul { margin-top: 8px; }
+
+        @media (max-width: 1100px) {
+            .container {
+                margin-left: 0;
+                width: 100%;
+                padding: 18px 14px 25px 14px;
+            }
+
+            .mini-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/navbar :: navbar('defenses')"></div>
+
+<div class="container">
+
+    <div class="page-header">
+        <h1>Planning intelligent des soutenances</h1>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <form th:action="@{/defenses/delete-all}" method="post"
+                  onsubmit="return confirm('Voulez-vous vraiment supprimer toutes les soutenances ?');">
+                <input type="hidden" name="filiere" th:value="${selectedFiliere}">
+                <button type="submit" class="btn btn-danger">Supprimer toutes les soutenances</button>
+            </form>
+            <a class="btn" th:href="@{/defenses/new}">Ajouter une soutenance</a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <div class="filter-box">
+        <div class="actions">
+            <form th:action="@{/defenses/auto-plan}" method="post"
+                  onsubmit="return confirm('Lancer la planification intelligente pour tout le département (GI + ID + TDIA) ?');">
+                <button class="btn btn-success" type="submit">Lancer le planning intelligent</button>
+            </form>
+
+            <a class="btn"
+               th:href="@{/import-export/export/planning-global/pdf}">
+                Export PDF Planning (Global)
+            </a>
+        </div>
+    </div>
+
+    <div class="mini-cards">
+        <div class="mini-card">
+            <h3>Département</h3>
+            <div class="value">Informatique</div>
+        </div>
+        <div class="mini-card">
+            <h3>Total soutenances</h3>
+            <div class="value" th:text="${totalDefenses}">0</div>
+        </div>
+        <div class="mini-card">
+            <h3>Filières couvertes</h3>
+            <div class="value">GI + ID + TDIA</div>
+        </div>
+    </div>
+
+    <div class="report-box" th:if="${report != null}">
+        <h2>Rapport de génération</h2>
+
+        <div th:if="${report.plannedCount > 0}" class="alert-success">
+            <strong th:text="${report.plannedCount}">0</strong> soutenance(s) planifiée(s)
+        </div>
+
+        <div th:if="${report.unplannedCount > 0}" class="alert-error">
+            <strong th:text="${report.unplannedCount}">0</strong> cas non planifiés
+        </div>
+
+        <div th:if="${report.hasPlannedMessages()}">
+            <h3>Planifiées</h3>
+            <ul>
+                <li th:each="msg : ${report.plannedMessages}" th:text="${msg}"></li>
+            </ul>
+        </div>
+
+        <div th:if="${report.hasUnplannedMessages()}">
+            <h3>Non planifiées</h3>
+            <ul>
+                <li th:each="msg : ${report.unplannedMessages}" th:text="${msg}"></li>
+            </ul>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(defenses)}" class="bloc">
+        <h2>Aucune soutenance enregistrée</h2>
+        <p>Lance la planification automatique ou ajoute une soutenance manuellement.</p>
+    </div>
+
+    <div th:if="${not #lists.isEmpty(defenses)}">
+        <div class="bloc">
+            <h2>Affichage par filière</h2>
+
+            <div th:if="${#lists.isEmpty(defenses)}">
+                <p>Aucune soutenance pour cette filière.</p>
+            </div>
+
+            <div th:each="entry : ${defensesByFiliere}">
+                <h3 th:text="${entry.key}">GI</h3>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>Encadrant</th>
+                            <th>Jury 1</th>
+                            <th>Jury 2</th>
+                            <th>Date</th>
+                            <th>Début</th>
+                            <th>Fin</th>
+                            <th>Salle</th>
+                            <th>Langue</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="defense : ${entry.value}"
+                            th:style="${defense.student != null and filiereColors[defense.student.filiere] != null ? 'background-color:' + filiereColors[defense.student.filiere] : ''}">
+                            <td th:text="${defense.student != null ? defense.student.nom + ' ' + defense.student.prenom : ''}"></td>
+                            <td th:text="${defense.encadrant != null ? defense.encadrant.nom + ' ' + defense.encadrant.prenom : ''}"></td>
+                            <td th:text="${defense.jury1 != null ? defense.jury1.nom + ' ' + defense.jury1.prenom : ''}"></td>
+                            <td th:text="${defense.jury2 != null ? defense.jury2.nom + ' ' + defense.jury2.prenom : ''}"></td>
+                            <td th:text="${defense.dateSoutenance != null ? defense.dateSoutenance : 'Non renseignée'}"></td>
+                            <td th:text="${defense.heureDebut != null ? defense.heureDebut : 'Non renseignée'}"></td>
+                            <td th:text="${defense.heureFin != null ? defense.heureFin : 'Non renseignée'}"></td>
+                            <td th:text="${defense.room != null ? defense.room.nomSalle : 'Non renseignée'}"></td>
+                            <td th:text="${defense.langue != null ? defense.langue : 'Non renseignée'}"></td>
+                            <td th:text="${defense.statut != null ? defense.statut : 'Non renseignée'}"></td>
+<td>
+                                <div class="row-actions">
+                                    <a class="btn btn-info btn-sm"
+                                       th:href="@{/defenses/fiche/{id}(id=${defense.student.id})}"
+                                       target="_blank">
+                                        Fiche Évaluation
+                                    </a>
+                                    <a class="btn btn-warning btn-sm"
+                                       th:href="@{/defenses/edit/{id}(id=${defense.id})}">
+                                        Modifier
+                                    </a>
+                                    <form th:action="@{/defenses/delete/{id}(id=${defense.id})}" method="post"
+                                          onsubmit="return confirm('Supprimer cette soutenance ?');">
+                                        <button class="btn btn-danger btn-sm" type="submit">Supprimer</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="bloc">
+            <h2>Affichage par date</h2>
+
+            <div th:if="${#lists.isEmpty(defenses)}">
+                <p>Aucune soutenance disponible.</p>
+            </div>
+
+            <div th:each="entry : ${defensesByDate}">
+                <div class="date-title" th:text="${entry.key != null ? entry.key : 'Date non renseignée'}">2026-06-20</div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>Heure</th>
+                            <th>Étudiant</th>
+                            <th>Filière</th>
+                            <th>Salle</th>
+                            <th>Encadrant</th>
+                            <th>Jury</th>
+                            <th>Actions</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="defense : ${entry.value}"
+                            th:style="${defense.student != null and filiereColors[defense.student.filiere] != null ? 'background-color:' + filiereColors[defense.student.filiere] : ''}">
+                            <td th:text="${
+                                defense.heureDebut != null and defense.heureFin != null
+                                ? defense.heureDebut + ' - ' + defense.heureFin
+                                : 'Non renseignée'
+                            }"></td>
+                            <td th:text="${defense.student != null ? defense.student.nom + ' ' + defense.student.prenom : ''}"></td>
+                            <td th:text="${defense.student != null ? defense.student.filiere : ''}"></td>
+                            <td th:text="${defense.room != null ? defense.room.nomSalle : 'Non renseignée'}"></td>
+                            <td th:text="${defense.encadrant != null ? defense.encadrant.nom + ' ' + defense.encadrant.prenom : ''}"></td>
+                            <td th:text="${
+                                (defense.jury1 != null ? defense.jury1.nom + ' ' + defense.jury1.prenom : '')
+                                + ' | ' +
+                                (defense.jury2 != null ? defense.jury2.nom + ' ' + defense.jury2.prenom : '')
+                            }"></td>
+<td>
+                                <div class="row-actions">
+                                    <a class="btn btn-info btn-sm"
+                                       th:href="@{/defenses/fiche/{id}(id=${defense.student.id})}"
+                                       target="_blank">
+                                        Fiche Évaluation
+                                    </a>
+                                    <a class="btn btn-warning btn-sm"
+                                       th:href="@{/defenses/edit/{id}(id=${defense.id})}">
+                                        Modifier
+                                    </a>
+                                    <form th:action="@{/defenses/delete/{id}(id=${defense.id})}" method="post"
+                                          onsubmit="return confirm('Supprimer cette soutenance ?');">
+                                        <button class="btn btn-danger btn-sm" type="submit">Supprimer</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

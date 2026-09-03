@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Modifier une soutenance</title>
+    <style>
+        body{
+            font-family:Arial,sans-serif;
+            background:#f8fafc;
+            margin:0;
+            padding:30px;
+        }
+        .card{
+            max-width:950px;
+            margin:0 auto;
+            background:white;
+            padding:24px;
+            border-radius:16px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.08);
+        }
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+        }
+        .field{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+        label{
+            font-weight:bold;
+        }
+        input, select{
+            padding:10px;
+            border:1px solid #cbd5e1;
+            border-radius:8px;
+        }
+        .info-box{
+            background:#eff6ff;
+            color:#1e3a8a;
+            border:1px solid #bfdbfe;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:16px;
+            line-height:1.6;
+        }
+        .actions{
+            margin-top:20px;
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+        .btn{
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            text-decoration:none;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+        .btn-primary{background:#2563eb;}
+        .btn-secondary{background:#475569;}
+        .alert-error{
+            background:#fee2e2;
+            color:#991b1b;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:14px;
+        }
+        .field-error{
+            color:#dc2626;
+            font-size:13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Modifier une soutenance</h1>
+
+    <div class="info-box">
+        <strong>Contraintes appliquées :</strong><br>
+        Département fixe : <strong>Informatique</strong><br>
+        Dates autorisées :
+        <span th:text="${dateMin}"></span> → <span th:text="${dateMax}"></span><br>
+        Créneaux autorisés :
+        <span th:each="c, stat : ${creneauxAutorises}">
+            <span th:text="${c}"></span><span th:if="${!stat.last}">, </span>
+        </span>
+    </div>
+
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <form th:action="@{/defenses/save}" th:object="${defense}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="grid">
+            <div class="field">
+                <label>Étudiant :</label>
+                <select th:field="*{student}" required>
+                    <option value="">-- Choisir un étudiant --</option>
+                    <option th:each="student : ${students}"
+                            th:value="${student.id}"
+                            th:text="${student.nom + ' ' + student.prenom + ' - ' + student.filiere}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('student')}" th:errors="*{student}"></div>
+            </div>
+
+            <div class="field">
+                <label>Encadrant :</label>
+                <select th:field="*{encadrant}" required>
+                    <option value="">-- Encadrant automatique depuis l'étudiant --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom + ' - ' + teacher.filiere}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('encadrant')}" th:errors="*{encadrant}"></div>
+            </div>
+
+            <div class="field">
+                <label>Jury 1 :</label>
+                <select th:field="*{jury1}" required>
+                    <option value="">-- Choisir jury 1 --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom + ' - ' + teacher.filiere}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('jury1')}" th:errors="*{jury1}"></div>
+            </div>
+
+            <div class="field">
+                <label>Jury 2 :</label>
+                <select th:field="*{jury2}" required>
+                    <option value="">-- Choisir jury 2 --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom + ' - ' + teacher.filiere}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('jury2')}" th:errors="*{jury2}"></div>
+            </div>
+
+            <div class="field">
+                <label>Date :</label>
+                <input type="date" th:field="*{dateSoutenance}" th:attr="min=${dateMin},max=${dateMax}" required />
+                <div class="field-error" th:if="${#fields.hasErrors('dateSoutenance')}" th:errors="*{dateSoutenance}"></div>
+            </div>
+
+            <div class="field">
+                <label>Heure début :</label>
+                <select th:field="*{heureDebut}" required>
+                    <option value="">-- Choisir un créneau --</option>
+                    <option th:each="h : ${creneauxAutorises}"
+                            th:value="${h}"
+                            th:text="${h}"></option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('heureDebut')}" th:errors="*{heureDebut}"></div>
+            </div>
+
+            <div class="field">
+                <label>Heure fin :</label>
+                <input type="time" th:field="*{heureFin}" readonly />
+                <div class="field-error" th:if="${#fields.hasErrors('heureFin')}" th:errors="*{heureFin}"></div>
+            </div>
+
+            <div class="field">
+                <label>Langue :</label>
+                <select th:field="*{langue}" required>
+                    <option value="">-- Choisir une langue --</option>
+                    <option value="FR">FR</option>
+                    <option value="EN">EN</option>
+                    
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('langue')}" th:errors="*{langue}"></div>
+            </div>
+
+            <div class="field">
+                <label>Statut :</label>
+                <select th:field="*{statut}" required>
+                    <option value="PLANIFIEE">PLANIFIEE</option>
+                    <option value="VALIDEE">VALIDEE</option>
+                    <option value="NON_PLANIFIEE">NON_PLANIFIEE</option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('statut')}" th:errors="*{statut}"></div>
+            </div>
+
+            <div class="field">
+                <label>Salle :</label>
+                <select th:field="*{room}" required>
+                    <option value="">-- Choisir une salle --</option>
+                    <option th:each="room : ${rooms}"
+                            th:value="${room.id}"
+                            th:text="${room.nomSalle}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('room')}" th:errors="*{room}"></div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Mettre à jour</button>
+            <a class="btn btn-secondary" th:href="@{/defenses}">Retour à la liste</a>
+        </div>
+    </form>
+</div>
+
+<script>
+    const heureDebut = document.querySelector('[name="heureDebut"]');
+    const heureFin = document.querySelector('[name="heureFin"]');
+
+    function addOneHour(value) {
+        if (!value) {
+            heureFin.value = '';
+            return;
+        }
+        const parts = value.split(':');
+        let h = parseInt(parts[0], 10);
+        let m = parseInt(parts[1], 10);
+        h = h + 1;
+        const hh = String(h).padStart(2, '0');
+        const mm = String(m).padStart(2, '0');
+        heureFin.value = hh + ':' + mm;
+    }
+
+    if (heureDebut) {
+        heureDebut.addEventListener('change', function () {
+            addOneHour(this.value);
+        });
+        addOneHour(heureDebut.value);
+    }
+</script>
+
+</body>
+</html>

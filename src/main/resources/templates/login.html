@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion - Gestion PFE · ENSAH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --navy: #071e3d;
+            --blue: #1354a3;
+            --blue-mid: #1a6bec;
+            --blue-light: #3b8ef5;
+            --accent: #e8f1ff;
+            --white: #ffffff;
+            --glass: rgba(255,255,255,0.10);
+            --glass-strong: rgba(255,255,255,0.88);
+            --text-dark: #071e3d;
+            --text-muted: #5a7094;
+            --border-light: rgba(255,255,255,0.22);
+        }
+
+        body {
+            font-family: 'Sora', sans-serif;
+            min-height: 100vh;
+            background:
+                linear-gradient(160deg, rgba(5,18,40,0.72) 0%, rgba(10,40,100,0.55) 100%),
+                url('/images/ensah.png') center / cover no-repeat fixed;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* ─── TOPBAR ─── */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 48px;
+            position: relative;
+            z-index: 10;
+            animation: fadeDown 0.7s ease both;
+        }
+
+        .topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .topbar-brand img {
+            width: 54px;
+            height: 54px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 10px rgba(0,0,0,0.3));
+        }
+
+        .topbar-brand-text {
+            color: white;
+        }
+
+        .topbar-brand-text strong {
+            display: block;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .topbar-brand-text span {
+            font-size: 0.78rem;
+            font-weight: 500;
+            opacity: 0.75;
+        }
+
+        .topbar-chip {
+            background: rgba(255,255,255,0.14);
+            border: 1px solid rgba(255,255,255,0.28);
+            color: white;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 999px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            backdrop-filter: blur(6px);
+        }
+
+        /* ─── HERO HEADLINE ─── */
+        .hero-section {
+            padding: 32px 48px 0;
+            max-width: 700px;
+            animation: fadeUp 0.8s 0.15s ease both;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.75);
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            margin-bottom: 16px;
+        }
+
+        .hero-label::before {
+            content: '';
+            width: 24px;
+            height: 2px;
+            background: var(--blue-light);
+            border-radius: 2px;
+        }
+
+        .hero-section h1 {
+            font-size: clamp(2rem, 4vw, 3.2rem);
+            font-weight: 900;
+            color: white;
+            line-height: 1.08;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+            text-shadow: 0 4px 24px rgba(0,0,0,0.4);
+        }
+
+        .hero-section p {
+            font-size: 1.02rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.72);
+            line-height: 1.75;
+            max-width: 540px;
+        }
+
+        /* ─── MAIN CONTENT GRID ─── */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 28px;
+            padding: 32px 48px 48px;
+            align-items: start;
+            flex: 1;
+            animation: fadeUp 0.85s 0.25s ease both;
+        }
+
+        /* ─── LEFT: SERVICES + MAP ─── */
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        /* Services */
+        .services-panel {
+            background: rgba(255,255,255,0.11);
+            border: 1px solid rgba(255,255,255,0.20);
+            border-radius: 24px;
+            padding: 28px;
+            backdrop-filter: blur(12px);
+        }
+
+        .panel-title {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.55);
+            margin-bottom: 20px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+        }
+
+        .service-card {
+            background: rgba(255,255,255,0.09);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 18px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: background 0.25s, transform 0.25s;
+            cursor: default;
+        }
+
+        .service-card:hover {
+            background: rgba(255,255,255,0.16);
+            transform: translateY(-3px);
+        }
+
+        .service-icon-wrap {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, rgba(26,107,236,0.45), rgba(59,142,245,0.25));
+            border: 1px solid rgba(100,170,255,0.30);
+            border-radius: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .service-icon-wrap svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: #a8ccff;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .service-card h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.92);
+        }
+
+        .service-card p {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.52);
+            line-height: 1.6;
+        }
+
+        /* Map Panel */
+        .map-panel {
+            background: rgba(255,255,255,0.11);
+            border: 1px solid rgba(255,255,255,0.20);
+            border-radius: 24px;
+            overflow: hidden;
+            backdrop-filter: blur(12px);
+        }
+
+        .map-header {
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255,255,255,0.12);
+        }
+
+        .map-header-title {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: rgba(255,255,255,0.85);
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .map-header-dot {
+            width: 8px;
+            height: 8px;
+            background: #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #4ade80;
+        }
+
+        .map-panel iframe {
+            width: 100%;
+            height: 200px;
+            border: 0;
+            display: block;
+        }
+
+        .map-contact {
+            padding: 16px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            border-top: 1px solid rgba(255,255,255,0.10);
+        }
+
+        .contact-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 0.83rem;
+            color: rgba(255,255,255,0.60);
+            line-height: 1.5;
+        }
+
+        .contact-row svg {
+            width: 15px;
+            height: 15px;
+            fill: none;
+            stroke: rgba(120,180,255,0.7);
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* ─── RIGHT: LOGIN CARD ─── */
+        .login-card {
+            background: var(--glass-strong);
+            border: 1px solid rgba(255,255,255,0.95);
+            border-radius: 28px;
+            padding: 36px 32px 30px;
+            box-shadow:
+                0 30px 60px rgba(5,18,40,0.25),
+                0 0 0 1px rgba(255,255,255,0.6) inset;
+            position: sticky;
+            top: 28px;
+        }
+
+        .login-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: linear-gradient(135deg, #dceeff, #c8e0ff);
+            border: 1px solid #b0ccf5;
+            color: var(--blue);
+            font-size: 0.73rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            margin-bottom: 20px;
+        }
+
+        .login-chip svg {
+            width: 12px;
+            height: 12px;
+            fill: none;
+            stroke: var(--blue);
+            stroke-width: 2.2;
+            stroke-linecap: round;
+        }
+
+        .login-card h2 {
+            font-size: 2rem;
+            font-weight: 900;
+            color: var(--navy);
+            letter-spacing: -0.8px;
+            margin-bottom: 6px;
+        }
+
+        .login-card .sub {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            line-height: 1.65;
+            margin-bottom: 26px;
+        }
+
+        /* Alert */
+        .alert {
+            margin-bottom: 18px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            flex-shrink: 0;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+            border: 1px solid #fecaca;
+        }
+
+        .alert-error svg { stroke: #b91c1c; }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .alert-success svg { stroke: #166534; }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #26456d;
+            margin-bottom: 8px;
+        }
+
+        .field-wrap {
+            position: relative;
+        }
+
+        .field-wrap svg {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: #94aec8;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            pointer-events: none;
+        }
+
+        .form-control {
+            width: 100%;
+            height: 52px;
+            border-radius: 14px;
+            border: 1.5px solid #d5e2f5;
+            background: #f5f9ff;
+            padding: 0 16px 0 44px;
+            font-size: 0.94rem;
+            font-family: 'Sora', sans-serif;
+            color: #193556;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--blue-mid);
+            box-shadow: 0 0 0 4px rgba(26,107,236,0.10);
+            background: white;
+        }
+
+        /* Role selector */
+        .role-select {
+            width: 100%;
+            height: 52px;
+            border-radius: 14px;
+            border: 1.5px solid #d5e2f5;
+            background: #f5f9ff;
+            padding: 0 40px 0 44px;
+            font-size: 0.94rem;
+            font-family: 'Sora', sans-serif;
+            color: #193556;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .role-select:focus {
+            border-color: var(--blue-mid);
+            box-shadow: 0 0 0 4px rgba(26,107,236,0.10);
+            background: white;
+        }
+
+        .select-wrap {
+            position: relative;
+        }
+
+        .select-wrap > svg:first-of-type {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .select-chevron {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .select-chevron svg,
+        .select-wrap > svg {
+            width: 17px;
+            height: 17px;
+            fill: none;
+            stroke: #94aec8;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Submit */
+        .btn-login {
+            width: 100%;
+            height: 54px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0d47a1, #1a6bec);
+            color: white;
+            font-size: 0.98rem;
+            font-weight: 800;
+            font-family: 'Sora', sans-serif;
+            cursor: pointer;
+            transition: 0.22s ease;
+            box-shadow: 0 12px 28px rgba(13,71,161,0.28);
+            margin-top: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            letter-spacing: 0.2px;
+        }
+
+        .btn-login svg {
+            width: 16px;
+            height: 16px;
+            fill: none;
+            stroke: white;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 18px 36px rgba(13,71,161,0.36);
+            background: linear-gradient(135deg, #1354a3, #2278f5);
+        }
+
+        /* Links row */
+        .links-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .links-row a {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--blue);
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .links-row a:hover { opacity: 1; }
+
+        .links-divider {
+            width: 4px;
+            height: 4px;
+            background: #bcd0ea;
+            border-radius: 50%;
+        }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #dce8f5, transparent);
+            margin: 22px 0;
+        }
+
+        /* Footer */
+        .login-footer {
+            text-align: center;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #98b0c8;
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 1100px) {
+            .content-grid {
+                grid-template-columns: 1fr 380px;
+                padding: 24px 28px 40px;
+            }
+            .topbar, .hero-section { padding-left: 28px; padding-right: 28px; }
+        }
+
+        @media (max-width: 860px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                padding: 20px 20px 40px;
+            }
+            .topbar, .hero-section { padding-left: 20px; padding-right: 20px; }
+            .login-card { position: static; }
+        }
+
+        @media (max-width: 560px) {
+            .services-grid { grid-template-columns: 1fr; }
+            .topbar { padding: 16px 18px; }
+            .hero-section { padding: 20px 18px 0; }
+            .content-grid { padding: 16px 18px 32px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <nav class="topbar">
+        <div class="topbar-brand">
+            <img src="/images/logo.png" alt="Logo ENSAH">
+            <div class="topbar-brand-text">
+                <strong>Gestion PFE</strong>
+                <span>ENSAH · Al Hoceima</span>
+            </div>
+        </div>
+        <div class="topbar-chip">Espace sécurisé</div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="hero-section">
+        <div class="hero-label">Plateforme académique ENSAH</div>
+        <h1>Connexion à la plateforme<br>de gestion des PFE<br>et des soutenances</h1>
+        <p>Gérez facilement la répartition des projets de fin d'études, le suivi des encadrants et l'organisation des soutenances.</p>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="content-grid">
+
+        <!-- LEFT COL -->
+        <div class="left-col">
+
+            <!-- Services -->
+            <div class="services-panel">
+                <div class="panel-title">Services disponibles</div>
+                <div class="services-grid">
+
+                    <div class="service-card">
+                        <div class="service-icon-wrap">
+                            <svg viewBox="0 0 24 24"><path d="M12 3L2 9l10 6 10-6-10-6z"/><path d="M6 11.5v4.5c0 0 2 2 6 2s6-2 6-2v-4.5"/></svg>
+                        </div>
+                        <h3>Gestion des PFE</h3>
+                        <p>Suivi des étudiants, sujets, encadrants et affectations automatiques.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon-wrap">
+                            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                        </div>
+                        <h3>Planification</h3>
+                        <p>Organisation intelligente des dates, salles et horaires de soutenance.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon-wrap">
+                            <svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.5"/><path d="M2 20c0-3.5 3-6 8-6s8 2.5 8 6"/><line x1="18" y1="5" x2="18" y2="11"/><line x1="15" y1="8" x2="21" y2="8"/></svg>
+                        </div>
+                        <h3>Espace encadrant</h3>
+                        <p>Consultation des étudiants suivis et des soutenances programmées.</p>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon-wrap">
+                            <svg viewBox="0 0 24 24"><polyline points="8 17 12 21 16 17"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"/></svg>
+                        </div>
+                        <h3>Import / Export</h3>
+                        <p>Génération de documents et exports PDF ou Excel des plannings.</p>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-panel">
+                <div class="map-header">
+                    <span class="map-header-title">Localisation & Contact</span>
+                    <span class="map-header-dot"></span>
+                </div>
+                <iframe
+                    src="https://www.google.com/maps?ll=35.17271,-3.862048&z=16&t=m&hl=fr&gl=US&mapclient=embed&cid=1840142049188400531&output=embed"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+                <div class="map-contact">
+                    <div class="contact-row">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                        <span>École Nationale des Sciences Appliquées d'Al Hoceima, BP 03, Ajdir</span>
+                    </div>
+                    <div class="contact-row">
+                        <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                        <span>+212 (0) 539 80 57 12 &nbsp;·&nbsp; +212 (0) 539 80 57 13</span>
+                    </div>
+                    <div class="contact-row">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <span>Accès réservé aux administrateurs et encadrants</span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- RIGHT: LOGIN CARD -->
+        <div class="login-card">
+            <div class="login-chip">
+                <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Connexion sécurisée
+            </div>
+
+            <h2>Bienvenue</h2>
+            <p class="sub">Connectez-vous pour accéder à votre espace de gestion.</p>
+
+            <!-- Thymeleaf alerts -->
+            <div th:if="${param.error}" class="alert alert-error">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Nom d'utilisateur ou mot de passe incorrect.
+            </div>
+
+            <div th:if="${param.logout}" class="alert alert-success">
+                <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                Vous avez été déconnecté avec succès.
+            </div>
+
+            <form method="post" th:action="@{/login}">
+
+                <div class="form-group">
+                    <label for="username">Nom d'utilisateur</label>
+                    <div class="field-wrap">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                        <input
+                            id="username"
+                            name="username"
+                            type="text"
+                            class="form-control"
+                            placeholder="Entrez votre nom d'utilisateur"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <div class="field-wrap">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input
+                            id="password"
+                            name="password"
+                            type="password"
+                            class="form-control"
+                            placeholder="Entrez votre mot de passe"
+                            required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Rôle</label>
+                    <div class="select-wrap">
+                        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <select id="role" name="role" class="role-select" required>
+                            <option value="" disabled selected>Sélectionner un rôle</option>
+                            <option value="admin">Administrateur</option>
+                            <option value="teacher">Encadrant</option>
+                        </select>
+                        <div class="select-chevron">
+                            <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-login">
+                    Se connecter
+                    <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </button>
+
+            </form>
+
+            <div class="links-row">
+                <a href="#">Questions ?</a>
+                <div class="links-divider"></div>
+                <a href="#">Mot de passe oublié</a>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="login-footer">© 2026 ENSAH · Gestion PFE</div>
+        </div>
+
+    </div>
+
+</body>
+</html>

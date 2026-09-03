@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Répartition des encadrants</title>
+    <style>
+        *{box-sizing:border-box;}
+        body{
+            margin:0;font-family:Arial,sans-serif;color:#0f172a;
+            background:
+                radial-gradient(circle at top left,rgba(59,130,246,.08),transparent 26%),
+                linear-gradient(180deg,#eef4ff 0%,#f8fbff 24%,#f8fafc 100%);
+            min-height:100vh;
+        }
+
+        .main-content{
+            margin-left:260px;
+            width:calc(100% - 260px);
+            min-height:100vh;
+            padding:28px 26px 40px;
+        }
+
+        .hero{
+            position:relative;overflow:hidden;border-radius:24px;
+            padding:30px 34px;color:white;margin-bottom:22px;
+            background:
+                linear-gradient(135deg,rgba(29,78,216,.96),rgba(30,64,175,.92) 48%,rgba(15,23,42,.96)),
+                url('/images/ensah.png') no-repeat right 28px center / 170px auto;
+            box-shadow:0 20px 44px rgba(15,23,42,.18);
+        }
+        .hero h2{margin:0 0 8px;font-size:clamp(1.5rem,3vw,2rem);}
+        .hero p{margin:0;color:rgba(255,255,255,.90);line-height:1.7;max-width:700px;font-size:15px;}
+
+        .page-header{
+            display:flex;justify-content:space-between;align-items:center;
+            gap:16px;flex-wrap:wrap;margin-bottom:20px;
+        }
+        .page-title{margin:0;font-size:clamp(1.6rem,3vw,2.2rem);color:#1e293b;}
+
+        .header-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+        .import-form{
+            display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+            background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.90);
+            border-radius:14px;padding:8px 12px;
+            box-shadow:0 6px 16px rgba(15,23,42,.06);
+        }
+        .import-form input[type="file"]{padding:8px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;}
+
+        .btn{
+            display:inline-flex;align-items:center;justify-content:center;gap:6px;
+            text-decoration:none;border:none;cursor:pointer;
+            padding:11px 18px;border-radius:13px;color:white;
+            font-weight:700;font-size:13.5px;
+            background:linear-gradient(135deg,#3b82f6,#2563eb);
+            box-shadow:0 10px 22px rgba(37,99,235,.22);
+            transition:transform .22s,box-shadow .22s,filter .22s;
+        }
+        .btn:hover{transform:translateY(-2px) scale(1.02);box-shadow:0 16px 28px rgba(37,99,235,.28);filter:brightness(1.04);}
+        .btn-secondary{background:linear-gradient(135deg,#64748b,#475569);box-shadow:0 10px 22px rgba(71,85,105,.20);}
+        .btn-success{background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 10px 22px rgba(34,197,94,.22);}
+        .btn-danger{background:linear-gradient(135deg,#ef4444,#dc2626);box-shadow:0 10px 22px rgba(220,38,38,.22);}
+
+        .alert-success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0;padding:13px 16px;border-radius:12px;margin-bottom:14px;font-weight:700;}
+        .alert-error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:13px 16px;border-radius:12px;margin-bottom:14px;font-weight:700;}
+
+        .filter-box,
+        .report-box,
+        .bloc{
+            background:rgba(255,255,255,.92);
+            border:1px solid rgba(255,255,255,.80);
+            border-radius:22px;
+            padding:22px 24px;
+            box-shadow:0 16px 36px rgba(15,23,42,.08);
+            margin-bottom:20px;
+        }
+
+        .filter-form{display:flex;flex-wrap:wrap;gap:14px;align-items:center;}
+        label{font-weight:800;color:#1e293b;}
+        select{
+            padding:11px 14px;border-radius:12px;border:1px solid #cbd5e1;
+            background:#f8fafc;min-width:240px;font-size:14px;
+        }
+        .actions{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;}
+
+        .section-title{margin:0 0 14px;color:#1e293b;font-size:1.3rem;font-weight:800;}
+        .sub-title{margin:0 0 14px;color:#1d4ed8;font-size:1.1rem;font-weight:800;}
+
+        .table-wrap{width:100%;overflow-x:auto;border-radius:16px;}
+        table{width:100%;min-width:1100px;border-collapse:collapse;background:white;border-radius:16px;overflow:hidden;}
+        th,td{border-bottom:1px solid #e2e8f0;padding:12px;text-align:left;vertical-align:middle;font-size:13.5px;}
+        th{background:linear-gradient(135deg,#eaf2ff,#dbeafe);color:#0f172a;font-weight:800;}
+        tbody tr{transition:background .15s;}
+        tbody tr:hover{background:rgba(219,234,254,.22);}
+        tbody tr:last-child td{border-bottom:none;}
+
+        .inline-actions a,.inline-actions button{font:inherit;text-decoration:none;font-weight:700;color:#1d4ed8;background:none;border:0;padding:0;cursor:pointer;}
+        .inline-actions .delete{color:#dc2626;}
+        .inline-actions form{display:inline;}
+        .muted{color:#64748b;font-size:14px;}
+
+        @media(max-width:992px){.main-content{margin-left:0;width:100%;padding:18px 14px 28px;}}
+        @media(max-width:640px){
+            .page-header,.header-actions,.import-form,.filter-form,.actions{flex-direction:column;align-items:stretch;}
+            .btn,.import-form input[type="file"],select{width:100%;}
+        }
+        .search-group{
+    position:relative;
+    display:flex;
+    align-items:center;
+    min-width:320px;
+    flex:1;
+    max-width:420px;
+}
+
+.search-icon{
+    position:absolute;
+    left:14px;
+    font-size:15px;
+    color:#2563eb;
+    pointer-events:none;
+}
+
+.search-input{
+    width:100%;
+    padding:12px 14px 12px 42px;
+    border-radius:14px;
+    border:1.5px solid #bfdbfe;
+    background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+    font-size:14px;
+    color:#0f172a;
+    outline:none;
+    box-shadow:0 6px 16px rgba(37,99,235,.08);
+    transition:border-color .22s, box-shadow .22s, transform .22s;
+}
+
+.search-input::placeholder{
+    color:#64748b;
+}
+
+.search-input:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 4px rgba(37,99,235,.14), 0 10px 22px rgba(37,99,235,.12);
+    transform:translateY(-1px);
+}
+    </style>
+</head>
+<body>
+
+<div th:replace="fragments/navbar :: navbar('students')"></div>
+
+<div class="main-content">
+
+    <div class="hero">
+        <h2>Répartition des encadrants</h2>
+        <p>Gère les étudiants par filière, lance la répartition automatique,
+            puis exporte les résultats dans une interface moderne et fluide.</p>
+    </div>
+
+    <div class="page-header">
+        <h1 class="page-title">Étudiants - Informatique</h1>
+        <div class="header-actions">
+            <form class="import-form"
+                  th:action="@{/import-export/import/students-excel}"
+                  method="post" enctype="multipart/form-data"
+                  title="Sélectionnez plusieurs fichiers Excel (un par filière). La filière est détectée par le nom du fichier.">
+                <input type="file" name="files" accept=".xlsx,.xls" multiple required>
+                <button type="submit" class="btn btn-secondary">Importer (multi-fichiers)</button>
+            </form>
+            <form th:action="@{/students/delete-all}" method="post"
+                  onsubmit="return confirm('Attention: toutes les soutenances seront supprimées aussi. Voulez-vous supprimer tous les étudiants ?');">
+                <button type="submit" class="btn btn-danger">Supprimer tous les étudiants</button>
+            </form>
+            <a class="btn" th:href="@{/students/new}">+ Ajouter un étudiant</a>
+        </div>
+    </div>
+
+    <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <div class="filter-box">
+        <form class="filter-form" th:action="@{/students}" method="get">
+            <div class="search-group">
+                <span class="search-icon"></span>
+                <input type="text"
+                       id="search"
+                       name="search"
+                       class="search-input"
+                       placeholder="Recherche intelligente (nom, thème, spécialité, encadrant...)"
+                       th:value="${search}"
+                       onkeyup="autoSearch()">
+            </div>
+        </form>
+        <div class="actions">
+            <form th:action="@{/students/auto-assign}" method="post"
+                  onsubmit="return confirm('Voulez-vous lancer la répartition automatique pour GI + ID + TDIA ?');">
+                <button class="btn btn-success" type="submit">Lancer la répartition automatique</button>
+            </form>
+            <a class="btn"
+               th:href="@{/import-export/export/assignments-global/pdf}">
+                Export PDF Affectation (Global)
+            </a>
+        </div>
+    </div>
+
+    <div>
+        <div th:if="${report != null and !report.isEmpty()}" class="report-box">
+            <h2 class="section-title">Rapport de répartition</h2>
+            <div class="table-wrap">
+                <table>
+                    <thead><tr><th>#</th><th>Détail</th></tr></thead>
+                    <tbody>
+                    <tr th:each="line, stat : ${report}">
+                        <td th:text="${stat.count}"></td>
+                        <td th:text="${line}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div th:if="${students == null or students.isEmpty()}" class="bloc">
+            <p class="muted">Aucun étudiant. Importe des fichiers Excel pour commencer.</p>
+        </div>
+
+        <div th:each="entry : ${studentsByFiliere}" class="bloc">
+            <h3 class="sub-title" th:text="${entry.key}"></h3>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>ID</th><th>CNE</th><th>Nom</th><th>Prénom</th>
+                        <th>Email</th><th>Filière</th>
+                        <th>Spécialité</th><th>Langue</th><th>Thème PFE</th>
+                        <th>Affect. manuelle</th><th>Encadrant</th><th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="student : ${entry.value}"
+                        th:style="${filiereColors[student.filiere] != null ? 'background-color:' + filiereColors[student.filiere] : ''}">
+                        <td th:text="${student.id}"></td>
+                        <td th:text="${student.cne}"></td>
+                        <td th:text="${student.nom}"></td>
+                        <td th:text="${student.prenom}"></td>
+                        <td th:text="${student.email != null and !student.email.isEmpty() ? student.email : '-'}"></td>
+                        <td th:text="${student.filiere}"></td>
+                        <td th:text="${student.specialite}"></td>
+                        <td th:text="${student.langueSoutenance}"></td>
+                        <td th:text="${student.themePfe}"></td>
+                        <td th:text="${student.affectationManuelle != null && student.affectationManuelle ? 'Oui' : 'Non'}"></td>
+                        <td th:text="${student.encadrant != null ? student.encadrant.nom + ' ' + student.encadrant.prenom : 'Non affecté'}"></td>
+                        <td class="inline-actions">
+                            <a th:href="@{/students/edit/{id}(id=${student.id})}">Modifier</a>
+                            |
+                            <form th:action="@{/students/delete/{id}(id=${student.id})}" method="post"
+                                  onsubmit="return confirm('Voulez-vous vraiment supprimer cet étudiant ?');">
+                                <button class="delete" type="submit">Supprimer</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+function autoSearch() {
+    clearTimeout(window.searchTimer);
+
+    window.searchTimer = setTimeout(function () {
+        document.querySelector('.filter-form').submit();
+    }, 400); // délai pour éviter spam requêtes
+}
+</script>
+</body>
+</html>

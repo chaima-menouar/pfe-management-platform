@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Ajouter une soutenance</title>
+    <style>
+        body{
+            font-family:Arial,sans-serif;
+            background:#f8fafc;
+            margin:0;
+            padding:30px;
+        }
+        .card{
+            max-width:900px;
+            margin:0 auto;
+            background:white;
+            padding:24px;
+            border-radius:16px;
+            box-shadow:0 8px 24px rgba(0,0,0,0.08);
+        }
+        .grid{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:16px;
+        }
+        .field{
+            display:flex;
+            flex-direction:column;
+            gap:8px;
+        }
+        label{
+            font-weight:bold;
+        }
+        input, select{
+            padding:10px;
+            border:1px solid #cbd5e1;
+            border-radius:8px;
+        }
+        .actions{
+            margin-top:20px;
+            display:flex;
+            gap:12px;
+            flex-wrap:wrap;
+        }
+        .btn{
+            display:inline-block;
+            padding:10px 14px;
+            border-radius:8px;
+            text-decoration:none;
+            color:white;
+            border:none;
+            cursor:pointer;
+        }
+        .btn-primary{background:#2563eb;}
+        .btn-secondary{background:#475569;}
+        .alert-error{
+            background:#fee2e2;
+            color:#991b1b;
+            padding:12px;
+            border-radius:8px;
+            margin-bottom:14px;
+        }
+        .field-error{
+            color:#dc2626;
+            font-size:13px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h1>Ajouter une soutenance</h1>
+
+    <div th:if="${error}" class="alert-error" th:text="${error}"></div>
+
+    <form th:action="@{/defenses/save}" th:object="${defense}" method="post">
+        <div class="grid">
+            <div class="field">
+                <label>Étudiant :</label>
+                <select th:field="*{student}">
+                    <option value="">-- Choisir un étudiant --</option>
+                    <option th:each="student : ${students}"
+                            th:value="${student.id}"
+                            th:text="${student.nom + ' ' + student.prenom}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('student')}" th:errors="*{student}"></div>
+            </div>
+
+            <div class="field">
+                <label>Encadrant :</label>
+                <select th:field="*{encadrant}">
+                    <option value="">-- Choisir un encadrant --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('encadrant')}" th:errors="*{encadrant}"></div>
+            </div>
+
+            <div class="field">
+                <label>Jury 1 :</label>
+                <select th:field="*{jury1}">
+                    <option value="">-- Choisir jury 1 --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('jury1')}" th:errors="*{jury1}"></div>
+            </div>
+
+            <div class="field">
+                <label>Jury 2 :</label>
+                <select th:field="*{jury2}">
+                    <option value="">-- Choisir jury 2 --</option>
+                    <option th:each="teacher : ${teachers}"
+                            th:value="${teacher.id}"
+                            th:text="${teacher.nom + ' ' + teacher.prenom}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('jury2')}" th:errors="*{jury2}"></div>
+            </div>
+
+            <div class="field">
+                <label>Date :</label>
+                <input type="date" th:field="*{dateSoutenance}" />
+                <div class="field-error" th:if="${#fields.hasErrors('dateSoutenance')}" th:errors="*{dateSoutenance}"></div>
+            </div>
+
+            <div class="field">
+                <label>Heure début :</label>
+                <input type="time" th:field="*{heureDebut}" />
+                <div class="field-error" th:if="${#fields.hasErrors('heureDebut')}" th:errors="*{heureDebut}"></div>
+            </div>
+
+            <div class="field">
+                <label>Heure fin :</label>
+                <input type="time" th:field="*{heureFin}" />
+                <div class="field-error" th:if="${#fields.hasErrors('heureFin')}" th:errors="*{heureFin}"></div>
+            </div>
+
+            <div class="field">
+                <label>Langue :</label>
+                <input type="text" th:field="*{langue}" />
+                <div class="field-error" th:if="${#fields.hasErrors('langue')}" th:errors="*{langue}"></div>
+            </div>
+
+            <div class="field">
+                <label>Statut :</label>
+                <input type="text" th:field="*{statut}" />
+                <div class="field-error" th:if="${#fields.hasErrors('statut')}" th:errors="*{statut}"></div>
+            </div>
+
+            <div class="field">
+                <label>Salle :</label>
+                <select th:field="*{room}">
+                    <option value="">-- Choisir une salle --</option>
+                    <option th:each="room : ${rooms}"
+                            th:value="${room.id}"
+                            th:text="${room.nomSalle}">
+                    </option>
+                </select>
+                <div class="field-error" th:if="${#fields.hasErrors('room')}" th:errors="*{room}"></div>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn btn-primary">Enregistrer</button>
+            <a class="btn btn-secondary" th:href="@{/defenses}">Retour à la liste</a>
+        </div>
+    </form>
+</div>
+
+</body>
+</html>
